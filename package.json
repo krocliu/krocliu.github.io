@@ -1,0 +1,24 @@
+{
+  "name": "taobao-tea-ranking-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "start-local": "node scripts/start-local.mjs",
+    "build": "vite build",
+    "preview": "vite preview",
+    "process-data": "node scripts/process-data.mjs",
+    "demo-data": "node scripts/create-demo-data.mjs"
+  },
+  "dependencies": {
+    "echarts": "^5.6.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.14"
+  }
+}
