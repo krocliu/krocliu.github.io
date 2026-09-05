@@ -1,6 +1,5 @@
 node_modules/
 dist/
-
-# 原始导入文件只保留在本机；网页实际需要的数据在 public/data/rankings.json。
 data/source/
 data/import-report.json
+看板前端预览.png

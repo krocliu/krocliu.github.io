@@ -19,7 +19,27 @@ const teaCategoryRules = [
   ['红茶', ['红茶', '金骏眉', '正山小种', '滇红', '祁门']], ['乌龙茶', ['乌龙', '铁观音', '大红袍', '岩茶', '单丛', '水仙']],
   ['白茶', ['白茶', '寿眉', '银针', '牡丹']], ['花果茶', ['茉莉', '花茶', '花果茶', '果茶', '代用茶']],
 ]
-function teaCategory(name) { return teaCategoryRules.find(([, keywords]) => keywords.some(keyword => name.includes(keyword)))?.[0] ?? '其他茶类' }
+const packagingCategoryRules = [
+  ['茶叶包装袋', ['包装袋', '密封袋', '自封袋', '铝箔袋', '小泡袋', '泡袋', '内袋', '牛皮纸袋']],
+  ['茶叶包装盒', ['包装盒', '纸盒', '空盒', '盒子', '天地盖', '翻盖', '抽屉盒']],
+  ['茶叶罐/铁盒', ['茶叶罐', '铁盒', '金属罐', '马口铁']],
+  ['礼盒/套装', ['礼盒', '套装', '双罐', '多罐']],
+  ['标签/配件', ['标签', '封口贴', '贴纸', '麻绳', '手提袋']],
+]
+const containerCategoryRules = [
+  ['玻璃茶叶罐', ['玻璃', '玻璃瓶', '透明罐']],
+  ['陶瓷茶叶罐', ['陶瓷', '瓷罐', '紫砂']],
+  ['金属茶叶罐', ['铁罐', '金属罐', '铝罐', '马口铁', '锡罐']],
+  ['木质/竹制茶叶罐', ['木盒', '木质', '竹盒', '竹制']],
+  ['礼盒/套装', ['礼盒', '套装', '双罐', '多罐']],
+]
+function classifyByTitle(name, rules, fallback) { return rules.find(([, keywords]) => keywords.some(keyword => name.includes(keyword)))?.[0] ?? fallback }
+function productSubcategory(categoryId, name, sourceCategory) {
+  if (categoryId === 'tea') return classifyByTitle(name, teaCategoryRules, '其他茶类')
+  if (categoryId === 'packaging') return classifyByTitle(name, packagingCategoryRules, '其他包装')
+  if (categoryId === 'containers') return classifyByTitle(name, containerCategoryRules, '其他茶叶罐')
+  return sourceCategory || '其他'
+}
 function summarizeDimension(records, getLabel) {
   const groups = new Map()
   records.forEach(record => {
@@ -158,7 +178,7 @@ function App() {
     if (!selected) return []
     return categoryMonths.map(item => item.records.find(record => record.productId === selected.productId)).filter(Boolean)
   }, [selected, categoryMonths])
-  const categorySales = useMemo(() => summarizeDimension(activeMonth?.records ?? [], record => activeCategory?.id === 'tea' ? teaCategory(record.productName) : (record.category || activeCategory?.label || '其他')), [activeMonth, activeCategory])
+  const subcategorySales = useMemo(() => summarizeDimension(activeMonth?.records ?? [], record => productSubcategory(activeCategory?.id, record.productName, record.sourceCategory)), [activeMonth, activeCategory])
   const storeSales = useMemo(() => summarizeDimension(activeMonth?.records ?? [], record => record.storeName).slice(0, 6), [activeMonth])
   const crossMonth = useMemo(() => {
     if (!categoryMonths.length) return { stable: [], up: [], down: [] }
@@ -230,7 +250,7 @@ function App() {
         {pageCount > 1 && <nav className="pagination" aria-label="榜单分页"><button disabled={page === 1} onClick={() => setPage(page - 1)}>上一页</button>{Array.from({ length: pageCount }, (_, index) => index + 1).map(number => <button className={page === number ? 'active' : ''} key={number} onClick={() => setPage(number)}>{number}</button>)}<button disabled={page === pageCount} onClick={() => setPage(page + 1)}>下一页</button></nav>}
       </article>
       <aside className="panel insight-panel"><div className="panel-head"><div><p className="eyebrow">CROSS-MONTH</p><h2>榜单动态</h2></div></div>
-        <DimensionSales title={activeCategory?.id === 'tea' ? '茶类热度' : '类目热度'} note={activeCategory?.id === 'tea' ? '按商品标题关键词归类' : '按导入数据的所属类目汇总'} items={categorySales} />
+        <DimensionSales title="品类动态" note="按商品标题规则细分并按支付买家数估算汇总排名" items={subcategorySales} />
         <DimensionSales title="品牌/店铺热度" note="以店铺名称作为品牌维度" items={storeSales} />
         <RankList title="持续上榜商品" items={crossMonth.stable} description="12 个月均在 Top 300" onSelect={setSelected} />
         <RankList title="本月上升最快" items={crossMonth.up.map(item => ({ ...item.record, annotation: `↑ ${item.change} 位` }))} onSelect={setSelected} />

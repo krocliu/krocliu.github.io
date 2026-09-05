@@ -17,6 +17,7 @@ const aliases = {
   productUrl: ['商品链接', '商品url', '宝贝链接', '商品地址url', '链接', 'url', 'itemurl'],
   storeUrl: ['店铺链接', '店铺url', '店铺地址url', 'shopurl', 'storeurl'],
   imageUrl: ['商品图片url', '商品主图', '商品图片', 'imageurl', 'image'],
+  sourceCategory: ['所属类目', '商品类目', '类目', 'category'],
   productName: ['商品名称', '商品', '宝贝名称', '宝贝', '商品标题', '标题', 'productname', 'name'],
   storeName: ['店铺名称', '店铺', '卖家', '商家', '店铺名', 'storename', 'shopname'],
   price: ['价格', '商品价格', '售价', '均价', 'price'],
@@ -106,6 +107,7 @@ for (const category of CATEGORY_SOURCES) {
       const productUrl = columns.productUrl < 0 ? '' : String(row[columns.productUrl] ?? '').trim()
       const storeUrl = columns.storeUrl < 0 ? '' : String(row[columns.storeUrl] ?? '').trim()
       const imageUrl = columns.imageUrl < 0 ? '' : normalizeImageUrl(row[columns.imageUrl])
+      const sourceCategory = columns.sourceCategory < 0 ? '' : String(row[columns.sourceCategory] ?? '').trim()
       const rawProductId = columns.productId < 0 ? '' : String(row[columns.productId] ?? '').trim()
       const productName = String(row[columns.productName] ?? '').trim()
       const storeName = String(row[columns.storeName] ?? '').trim()
@@ -118,7 +120,7 @@ for (const category of CATEGORY_SOURCES) {
         report.errors.push(`${file} 第 ${rowNumber} 行：月份、商品名、店铺及销量/支付买家数须有效；存在的价格或销售额也须为有效数值。`)
         return
       }
-      records.push({ categoryId: category.id, month, productId, productUrl, storeUrl, imageUrl, productName, storeName, price, salesVolume, salesVolumeLabel: String(row[columns.salesVolume]).trim(), salesAmount, visitors, visitorsLabel: columns.visitors < 0 ? '' : String(row[columns.visitors]).trim(), sourceRankChange: columns.rank < 0 ? '' : String(row[columns.rank]).trim(), sourceOrder: rowOffset, sourceFile: file })
+      records.push({ categoryId: category.id, month, productId, productUrl, storeUrl, imageUrl, sourceCategory, productName, storeName, price, salesVolume, salesVolumeLabel: String(row[columns.salesVolume]).trim(), salesAmount, visitors, visitorsLabel: columns.visitors < 0 ? '' : String(row[columns.visitors]).trim(), sourceRankChange: columns.rank < 0 ? '' : String(row[columns.rank]).trim(), sourceOrder: rowOffset, sourceFile: file })
       accepted += 1
     })
     report.files.push({ category: category.label, file, rowsRead: body.length, rowsAccepted: accepted, usedFilenameMonth: columns.month < 0 })
